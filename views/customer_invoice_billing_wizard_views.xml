@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_customer_invoice_billing_wizard_form" model="ir.ui.view">
+        <field name="name">customer.invoice.billing.wizard.form</field>
+        <field name="model">customer.invoice.billing.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Invoice Billing">
+                <field name="company_id" invisible="1"/>
+                <field name="currency_id" invisible="1"/>
+
+                <group>
+                    <group string="Billing Info">
+                        <!-- <field name="paper_size"/> -->
+                        <field name="billing_date"/>
+                        <field name="sequence_no"/>
+                        <field name="remark"/>
+                        <field name="custom_remark" invisible="remark != 'other'"/>
+                    </group>
+                    <group string="Amount">
+                        <label for="total_amount"/>
+                        <div class="o_row">
+                            <field name="total_amount" readonly="1"/>
+                            <field name="currency_id"
+                                   readonly="1"
+                                   groups="base.group_multi_currency"/>
+                        </div>
+                    </group>
+                </group>
+
+                <group string="Bill To / From">
+                    <group>
+                        <field name="partner_id"/>
+                        <!-- <field name="bill_to_partner_id"/> -->
+                    </group>
+                    <group>
+                        <field name="bill_to_text" groups="base.group_no_one"/>
+                        <field name="from_text" groups="base.group_no_one"/>
+                    </group>
+                </group>
+
+                <group string="Contact">
+                    <field name="contact_name"/>
+                    <field name="contact_phone"/>
+                    <field name="contact_email"/>
+                </group>
+
+                <group string="Bank Information" groups="base.group_no_one">
+                    <field name="bank_line_ids" nolabel="1" groups="base.group_no_one">
+                        <list editable="bottom" create="1" delete="1">
+                            <field name="sequence" widget="handle"/>
+                            <field name="account_number"/>
+                            <field name="account_name"/>
+                            <field name="bank_name"/>
+                            <field name="currency_name"/>
+                        </list>
+                    </field>
+                </group>
+
+                <group string="Signatures">
+                    <group string="Approved By">
+                        <field name="approved_by_name"/>
+                        <field name="approved_by_position"/>
+                    </group>
+                    <group string="Prepared By">
+                        <field name="prepared_by_name"/>
+                        <field name="prepared_by_position"/>
+                    </group>
+                </group>
+
+                <footer>
+                    <button name="action_print_billing"
+                            string="Print"
+                            type="object"
+                            class="oe_highlight"
+                            data-hotkey="q"/>
+                    <button string="Cancel"
+                            special="cancel"
+                            class="btn-secondary"
+                            data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

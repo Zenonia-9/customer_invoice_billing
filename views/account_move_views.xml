@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_move_form_inherit_customer_invoice_billing" model="ir.ui.view">
+        <field name="name">account.move.form.inherit.customer.invoice.billing</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@id='account_invoice_payment_btn']" position="after">
+                <button name="action_open_customer_invoice_billing"
+                        type="object"
+                        string="Billing"
+                        class="oe_highlight"
+                        data-hotkey="b"
+                        invisible="move_type != 'out_invoice'"
+                        groups="account.group_account_invoice"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_invoice_tree_inherit_customer_invoice_billing" model="ir.ui.view">
+        <field name="name">account.move.list.inherit.customer.invoice.billing</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='action_force_register_payment']" position="after">
+                <button name="action_open_customer_invoice_billing"
+                        type="object"
+                        string="Billing"
+                        groups="account.group_account_invoice"
+                        invisible="context.get('default_move_type') != 'out_invoice'"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

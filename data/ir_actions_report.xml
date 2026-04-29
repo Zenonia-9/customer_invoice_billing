@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_customer_invoice_billing" model="ir.actions.report">
+        <field name="name">Invoice Billing</field>
+        <field name="model">customer.invoice.billing.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">customer_invoice_billing.report_invoice_billing_document</field>
+        <field name="report_file">customer_invoice_billing.report_invoice_billing_document</field>
+        <field name="print_report_name">'Invoice Billing - %s' % (object.partner_id.name or 'Customer')</field>
+        <field name="binding_model_id" eval="False"/>
+    </record>
+</odoo>

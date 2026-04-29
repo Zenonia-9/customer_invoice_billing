@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_customer_invoice_billing_wizard,customer.invoice.billing.wizard,model_customer_invoice_billing_wizard,account.group_account_invoice,1,1,1,1
+access_customer_invoice_billing_bank_line,customer.invoice.billing.bank.line,model_customer_invoice_billing_bank_line,account.group_account_invoice,1,1,1,1
