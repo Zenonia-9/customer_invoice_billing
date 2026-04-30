@@ -3,22 +3,19 @@
     <template id="report_invoice_billing_document">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="doc">
-                <style>
+                <!-- <style>
                     @page {
                         size: A4 portrait;
                         margin: 8mm 10mm 10mm 10mm;
                     }
+                </style> -->
+                <t t-set="cib_report_variant" t-value="'a4'"/>
 
+                <style>
                     .cib-page {
-                        --cib-font-size: 12px;
-                        --cib-small-font-size: 10.5px;
-                        --cib-title-font-size: 14px;
-                        --cib-border: 1px solid #000;
-                        --cib-cell-padding: 3px 5px;
-
                         color: #000;
                         font-family: Arial, Helvetica, sans-serif;
-                        font-size: var(--cib-font-size);
+                        font-size: 12px;
                         line-height: 1.25;
                         margin: 0 auto;
                         max-width: 188mm;
@@ -30,10 +27,19 @@
                         box-sizing: border-box;
                     }
 
+                    .cib-page.cib-a5 {
+                        font-size: 9.4px;
+                        max-width: 198mm;
+                    }
+
                     .cib-header {
                         display: table;
                         width: 100%;
                         margin-bottom: 8px;
+                    }
+
+                    .cib-a5 .cib-header {
+                        margin-bottom: 5px;
                     }
 
                     .cib-header-left,
@@ -58,27 +64,53 @@
                         padding-top: 18px;
                     }
 
+                    .cib-a5 .cib-header-center {
+                        padding-top: 4px;
+                    }
+
+                    .cib-a5 .cib-header-right {
+                        padding-top: 8px;
+                    }
+
                     .cib-logo {
                         max-height: 70px;
                         max-width: 160px;
                         object-fit: contain;
                     }
 
+                    .cib-a5 .cib-logo {
+                        max-height: 42px;
+                        max-width: 120px;
+                    }
+
                     .cib-company-small {
                         margin-top: 2px;
-                        font-size: var(--cib-small-font-size);
+                        font-size: 10.5px;
+                    }
+
+                    .cib-a5 .cib-company-small {
+                        font-size: 8.4px;
                     }
 
                     .cib-company-title {
                         font-weight: bold;
-                        font-size: var(--cib-title-font-size);
+                        font-size: 14px;
+                    }
+
+                    .cib-a5 .cib-company-title {
+                        font-size: 11px;
                     }
 
                     .cib-title {
                         margin-top: 6px;
                         font-weight: bold;
                         text-decoration: underline;
-                        font-size: var(--cib-title-font-size);
+                        font-size: 14px;
+                    }
+
+                    .cib-a5 .cib-title {
+                        margin-top: 3px;
+                        font-size: 11px;
                     }
 
                     .cib-meta-row {
@@ -92,35 +124,58 @@
                         font-weight: bold;
                     }
 
+                    .cib-a5 .cib-meta-label {
+                        width: 38px;
+                    }
+
                     .cib-table {
                         width: 100%;
+                        border: 1px solid #222;
                         border-collapse: collapse;
+                        table-layout: fixed;
                     }
 
                     .cib-table th,
                     .cib-table td {
-                        border: var(--cib-border);
-                        padding: var(--cib-cell-padding);
+                        border: 1px solid #222;
+                        padding: 3px 5px;
                         vertical-align: middle;
+                        overflow-wrap: anywhere;
+                    }
+
+                    .cib-a5 .cib-table th,
+                    .cib-a5 .cib-table td {
+                        padding: 2px 4px;
+                    }
+
+                    .cib-table th {
+                        background: #f2f2f2;
+                        font-weight: bold;
                     }
 
                     .cib-info-table {
                         margin-bottom: 7px;
                     }
 
+                    .cib-a5 .cib-info-table {
+                        margin-bottom: 5px;
+                    }
+
                     .cib-info-table th {
-                        width: 20mm;
+                        width: 22mm;
                         text-align: left;
-                        font-weight: bold;
                     }
 
                     .cib-invoice-table th {
                         text-align: center;
-                        font-weight: bold;
                     }
 
                     .cib-invoice-table td {
                         height: 21px;
+                    }
+
+                    .cib-a5 .cib-invoice-table td {
+                        height: 15px;
                     }
 
                     .cib-text-center {
@@ -132,11 +187,16 @@
                     }
 
                     .cib-total-row td {
+                        background: #fafafa;
                         font-weight: bold;
                     }
 
                     .cib-section {
                         margin-top: 10px;
+                    }
+
+                    .cib-a5 .cib-section {
+                        margin-top: 5px;
                     }
 
                     .cib-section-title {
@@ -148,15 +208,43 @@
                         margin-top: 18px;
                     }
 
+                    .cib-a5 .cib-remark {
+                        margin-top: 7px;
+                    }
+
                     .cib-bank-table th {
                         width: 32mm;
                         text-align: left;
+                        white-space: nowrap;
+                    }
+
+                    .cib-bank-table td {
+                        text-align: center;
+                    }
+
+                    .cib-contact-block {
+                        display: table;
+                        width: 100%;
+                        margin-top: 10px;
+                    }
+
+                    .cib-a5 .cib-contact-block {
+                        margin-top: 5px;
+                    }
+
+                    .cib-contact-label,
+                    .cib-contact-details {
+                        display: table-cell;
+                        vertical-align: top;
+                    }
+
+                    .cib-contact-label {
+                        width: 32mm;
                         font-weight: bold;
                         white-space: nowrap;
                     }
 
                     .cib-contact-line {
-                        margin-left: 18mm;
                         margin-bottom: 2px;
                     }
 
@@ -171,6 +259,10 @@
                         page-break-inside: avoid;
                     }
 
+                    .cib-a5 .cib-signatures {
+                        margin-top: 18px;
+                    }
+
                     .cib-signature-block {
                         display: table-cell;
                         width: 50%;
@@ -183,11 +275,19 @@
                         margin-bottom: 42px;
                     }
 
+                    .cib-a5 .cib-signature-title {
+                        margin-bottom: 22px;
+                    }
+
                     .cib-signature-line {
                         width: 58%;
                         height: 18px;
                         margin: 0 auto 4px auto;
                         border-bottom: 1px dotted #000;
+                    }
+
+                    .cib-a5 .cib-signature-line {
+                        height: 10px;
                     }
 
                     .cib-signature-name,
@@ -196,13 +296,13 @@
                     }
                 </style>
 
-                <div class="page cib-page">
+                <div t-att-class="'page cib-page cib-%s' % cib_report_variant">
                     <div class="cib-header">
                         <div class="cib-header-left">
                             <img t-if="doc.company_id.logo"
-                                 t-att-src="image_data_uri(doc.company_id.logo)"
-                                 class="cib-logo"
-                                 alt="Company Logo"/>
+                                t-att-src="image_data_uri(doc.company_id.logo)"
+                                class="cib-logo"
+                                alt="Company Logo"/>
                             <div class="cib-company-small">
                                 <span t-esc="doc.company_id.name or ''"/>
                             </div>
@@ -225,7 +325,7 @@
                                 <span class="cib-meta-label">Date</span>
                                 <span>: </span>
                                 <span t-field="doc.billing_date"
-                                      t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
+                                    t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
                             </div>
                         </div>
                     </div>
@@ -241,7 +341,7 @@
                             <tr>
                                 <th>From :</th>
                                 <td>
-                                    <span t-esc="doc.from_text or doc.company_id.partner_id.display_name or doc.company_id.name or ''"/>
+                                    <span t-esc="doc._get_from_text()"/>
                                 </td>
                             </tr>
                         </tbody>
@@ -266,7 +366,7 @@
                                     </td>
                                     <td class="cib-text-center">
                                         <span t-field="invoice.invoice_date"
-                                              t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
+                                            t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
                                     </td>
                                     <td>
                                         <span t-esc="doc._get_invoice_vendor_ref(invoice)"/>
@@ -276,7 +376,7 @@
                                     </td>
                                     <td class="cib-text-right">
                                         <span t-field="invoice.amount_total"
-                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                            t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                     </td>
                                     <td class="cib-text-center">
                                         <span t-esc="doc._get_invoice_cpi(invoice)"/>
@@ -288,7 +388,7 @@
                                 <td colspan="4" class="cib-text-center">Total Amount</td>
                                 <td class="cib-text-right">
                                     <span t-field="doc.total_amount"
-                                          t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                        t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
                                 </td>
                                 <td/>
                             </tr>
@@ -333,16 +433,493 @@
                         </table>
                     </div>
 
-                    <div class="cib-section">
-                        <div class="cib-section-title">Contact :</div>
-                        <div class="cib-contact-line" t-if="doc.contact_name">
-                            <span t-esc="doc.contact_name"/>
+                    <div class="cib-contact-block">
+                        <div class="cib-contact-label">Contact :</div>
+                        <div class="cib-contact-details">
+                            <div class="cib-contact-line" t-if="doc.contact_name">
+                                <span t-esc="doc.contact_name"/>
+                            </div>
+                            <div class="cib-contact-line" t-if="doc.contact_phone">
+                                <span t-esc="doc.contact_phone"/>
+                            </div>
+                            <div class="cib-contact-line cib-email" t-if="doc.contact_email">
+                                <span t-esc="doc.contact_email"/>
+                            </div>
                         </div>
-                        <div class="cib-contact-line" t-if="doc.contact_phone">
-                            <span t-esc="doc.contact_phone"/>
+                    </div>
+
+                    <div class="cib-signatures">
+                        <div class="cib-signature-block">
+                            <div class="cib-signature-title">Approved by:</div>
+                            <div class="cib-signature-line"/>
+                            <div class="cib-signature-name">
+                                <span t-esc="doc.approved_by_name or ''"/>
+                            </div>
+                            <div class="cib-signature-position">
+                                <span t-esc="doc.approved_by_position or ''"/>
+                            </div>
                         </div>
-                        <div class="cib-contact-line cib-email" t-if="doc.contact_email">
-                            <span t-esc="doc.contact_email"/>
+
+                        <div class="cib-signature-block">
+                            <div class="cib-signature-title">Prepared by:</div>
+                            <div class="cib-signature-line"/>
+                            <div class="cib-signature-name">
+                                <span t-esc="doc.prepared_by_name or ''"/>
+                            </div>
+                            <div class="cib-signature-position">
+                                <span t-esc="doc.prepared_by_position or ''"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <template id="invoice_billing_doc_a5">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <style>
+                    @page {
+                        size: A5 landscape;
+                        margin: 5mm 6mm;
+                    }
+                </style>
+                <t t-set="cib_report_variant" t-value="'a5'"/>
+                <style>
+                    .cib-page {
+                        color: #000;
+                        font-family: Arial, Helvetica, sans-serif;
+                        font-size: 12px;
+                        line-height: 1.25;
+                        margin: 0 auto;
+                        max-width: 188mm;
+                    }
+
+                    .cib-page * {
+                        font-size: inherit;
+                        line-height: inherit;
+                        box-sizing: border-box;
+                    }
+
+                    .cib-page.cib-a5 {
+                        font-size: 9.4px;
+                        max-width: 198mm;
+                    }
+
+                    .cib-header {
+                        display: table;
+                        width: 100%;
+                        margin-bottom: 8px;
+                    }
+
+                    .cib-a5 .cib-header {
+                        margin-bottom: 5px;
+                    }
+
+                    .cib-header-left,
+                    .cib-header-center,
+                    .cib-header-right {
+                        display: table-cell;
+                        vertical-align: top;
+                    }
+
+                    .cib-header-left {
+                        width: 28%;
+                    }
+
+                    .cib-header-center {
+                        width: 44%;
+                        text-align: center;
+                        padding-top: 8px;
+                    }
+
+                    .cib-header-right {
+                        width: 28%;
+                        padding-top: 18px;
+                    }
+
+                    .cib-a5 .cib-header-center {
+                        padding-top: 4px;
+                    }
+
+                    .cib-a5 .cib-header-right {
+                        padding-top: 8px;
+                    }
+
+                    .cib-logo {
+                        max-height: 70px;
+                        max-width: 160px;
+                        object-fit: contain;
+                    }
+
+                    .cib-a5 .cib-logo {
+                        max-height: 42px;
+                        max-width: 120px;
+                    }
+
+                    .cib-company-small {
+                        margin-top: 2px;
+                        font-size: 10.5px;
+                    }
+
+                    .cib-a5 .cib-company-small {
+                        font-size: 8.4px;
+                    }
+
+                    .cib-company-title {
+                        font-weight: bold;
+                        font-size: 14px;
+                    }
+
+                    .cib-a5 .cib-company-title {
+                        font-size: 11px;
+                    }
+
+                    .cib-title {
+                        margin-top: 6px;
+                        font-weight: bold;
+                        text-decoration: underline;
+                        font-size: 14px;
+                    }
+
+                    .cib-a5 .cib-title {
+                        margin-top: 3px;
+                        font-size: 11px;
+                    }
+
+                    .cib-meta-row {
+                        white-space: nowrap;
+                        margin-bottom: 3px;
+                    }
+
+                    .cib-meta-label {
+                        display: inline-block;
+                        width: 48px;
+                        font-weight: bold;
+                    }
+
+                    .cib-a5 .cib-meta-label {
+                        width: 38px;
+                    }
+
+                    .cib-table {
+                        width: 100%;
+                        border: 1px solid #222;
+                        border-collapse: collapse;
+                        table-layout: fixed;
+                    }
+
+                    .cib-table th,
+                    .cib-table td {
+                        border: 1px solid #222;
+                        padding: 3px 5px;
+                        vertical-align: middle;
+                        overflow-wrap: anywhere;
+                    }
+
+                    .cib-a5 .cib-table th,
+                    .cib-a5 .cib-table td {
+                        padding: 2px 4px;
+                    }
+
+                    .cib-table th {
+                        background: #f2f2f2;
+                        font-weight: bold;
+                    }
+
+                    .cib-info-table {
+                        margin-bottom: 7px;
+                    }
+
+                    .cib-a5 .cib-info-table {
+                        margin-bottom: 5px;
+                    }
+
+                    .cib-info-table th {
+                        width: 22mm;
+                        text-align: left;
+                    }
+
+                    .cib-invoice-table th {
+                        text-align: center;
+                    }
+
+                    .cib-invoice-table td {
+                        height: 21px;
+                    }
+
+                    .cib-a5 .cib-invoice-table td {
+                        height: 15px;
+                    }
+
+                    .cib-text-center {
+                        text-align: center;
+                    }
+
+                    .cib-text-right {
+                        text-align: right;
+                    }
+
+                    .cib-total-row td {
+                        background: #fafafa;
+                        font-weight: bold;
+                    }
+
+                    .cib-section {
+                        margin-top: 10px;
+                    }
+
+                    .cib-a5 .cib-section {
+                        margin-top: 5px;
+                    }
+
+                    .cib-section-title {
+                        font-weight: bold;
+                        margin-bottom: 3px;
+                    }
+
+                    .cib-remark {
+                        margin-top: 18px;
+                    }
+
+                    .cib-a5 .cib-remark {
+                        margin-top: 7px;
+                    }
+
+                    .cib-bank-table th {
+                        width: 32mm;
+                        text-align: left;
+                        white-space: nowrap;
+                    }
+
+                    .cib-bank-table td {
+                        text-align: center;
+                    }
+
+                    .cib-contact-block {
+                        display: table;
+                        width: 100%;
+                        margin-top: 10px;
+                    }
+
+                    .cib-a5 .cib-contact-block {
+                        margin-top: 5px;
+                    }
+
+                    .cib-contact-label,
+                    .cib-contact-details {
+                        display: table-cell;
+                        vertical-align: top;
+                    }
+
+                    .cib-contact-label {
+                        width: 32mm;
+                        font-weight: bold;
+                        white-space: nowrap;
+                    }
+
+                    .cib-contact-line {
+                        margin-bottom: 2px;
+                    }
+
+                    .cib-email {
+                        text-decoration: underline;
+                    }
+
+                    .cib-signatures {
+                        display: table;
+                        width: 100%;
+                        margin-top: 42px;
+                        page-break-inside: avoid;
+                    }
+
+                    .cib-a5 .cib-signatures {
+                        margin-top: 18px;
+                    }
+
+                    .cib-signature-block {
+                        display: table-cell;
+                        width: 50%;
+                        text-align: center;
+                        vertical-align: bottom;
+                    }
+
+                    .cib-signature-title {
+                        font-weight: bold;
+                        margin-bottom: 42px;
+                    }
+
+                    .cib-a5 .cib-signature-title {
+                        margin-bottom: 22px;
+                    }
+
+                    .cib-signature-line {
+                        width: 58%;
+                        height: 18px;
+                        margin: 0 auto 4px auto;
+                        border-bottom: 1px dotted #000;
+                    }
+
+                    .cib-a5 .cib-signature-line {
+                        height: 10px;
+                    }
+
+                    .cib-signature-name,
+                    .cib-signature-position {
+                        min-height: 15px;
+                    }
+                </style>
+
+                <div t-att-class="'page cib-page cib-%s' % cib_report_variant">
+                    <div class="cib-header">
+                        <div class="cib-header-left">
+                            <img t-if="doc.company_id.logo"
+                                t-att-src="image_data_uri(doc.company_id.logo)"
+                                class="cib-logo"
+                                alt="Company Logo"/>
+                            <div class="cib-company-small">
+                                <span t-esc="doc.company_id.name or ''"/>
+                            </div>
+                        </div>
+
+                        <div class="cib-header-center">
+                            <div class="cib-company-title">
+                                <span t-esc="doc.company_id.name or ''"/>
+                            </div>
+                            <div class="cib-title">Invoice</div>
+                        </div>
+
+                        <div class="cib-header-right">
+                            <div class="cib-meta-row">
+                                <span class="cib-meta-label">Sq. No.</span>
+                                <span>: </span>
+                                <span t-esc="doc.sequence_no or ''"/>
+                            </div>
+                            <div class="cib-meta-row">
+                                <span class="cib-meta-label">Date</span>
+                                <span>: </span>
+                                <span t-field="doc.billing_date"
+                                    t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <table class="cib-table cib-info-table">
+                        <tbody>
+                            <tr>
+                                <th>Bill to :</th>
+                                <td>
+                                    <span t-esc="doc.bill_to_text or doc.partner_id.display_name or ''"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>From :</th>
+                                <td>
+                                    <span t-esc="doc._get_from_text()"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <table class="cib-table cib-invoice-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 8mm;">No</th>
+                                <th style="width: 24mm;">Date</th>
+                                <th>Name</th>
+                                <th style="width: 30mm;">Invoice</th>
+                                <th style="width: 32mm;">Amount (KS)</th>
+                                <th style="width: 24mm;">CPI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="doc.invoice_ids" t-as="invoice">
+                                <tr>
+                                    <td class="cib-text-center">
+                                        <span t-esc="invoice_index + 1"/>
+                                    </td>
+                                    <td class="cib-text-center">
+                                        <span t-field="invoice.invoice_date"
+                                            t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="doc._get_invoice_vendor_ref(invoice)"/>
+                                    </td>
+                                    <td class="cib-text-center">
+                                        <span t-esc="doc._get_invoice_anzer_id(invoice)"/>
+                                    </td>
+                                    <td class="cib-text-right">
+                                        <span t-field="invoice.amount_total"
+                                            t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                    </td>
+                                    <td class="cib-text-center">
+                                        <span t-esc="doc._get_invoice_cpi(invoice)"/>
+                                    </td>
+                                </tr>
+                            </t>
+
+                            <tr class="cib-total-row">
+                                <td colspan="4" class="cib-text-center">Total Amount</td>
+                                <td class="cib-text-right">
+                                    <span t-field="doc.total_amount"
+                                        t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                </td>
+                                <td/>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <t t-set="remark_text" t-value="doc._get_remark_text()"/>
+                    <div class="cib-section cib-remark" t-if="remark_text">
+                        <strong>Remark:</strong>
+                        <span t-esc="remark_text"/>
+                    </div>
+
+                    <div class="cib-section" t-if="doc.bank_line_ids">
+                        <div class="cib-section-title">Bank Information :</div>
+                        <table class="cib-table cib-bank-table">
+                            <tbody>
+                                <tr>
+                                    <th>Account Number</th>
+                                    <td t-foreach="doc.bank_line_ids" t-as="bank">
+                                        <span t-esc="bank.account_number"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Account Name</th>
+                                    <td t-foreach="doc.bank_line_ids" t-as="bank">
+                                        <span t-esc="bank.account_name"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Bank Name</th>
+                                    <td t-foreach="doc.bank_line_ids" t-as="bank">
+                                        <span t-esc="bank.bank_name"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Currency</th>
+                                    <td t-foreach="doc.bank_line_ids" t-as="bank">
+                                        <span t-esc="bank.currency_name"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="cib-contact-block">
+                        <div class="cib-contact-label">Contact :</div>
+                        <div class="cib-contact-details">
+                            <div class="cib-contact-line" t-if="doc.contact_name">
+                                <span t-esc="doc.contact_name"/>
+                            </div>
+                            <div class="cib-contact-line" t-if="doc.contact_phone">
+                                <span t-esc="doc.contact_phone"/>
+                            </div>
+                            <div class="cib-contact-line cib-email" t-if="doc.contact_email">
+                                <span t-esc="doc.contact_email"/>
+                            </div>
                         </div>
                     </div>
 

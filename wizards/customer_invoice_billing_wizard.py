@@ -54,15 +54,15 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
         },
     )
 
-    # paper_size = fields.Selection(
-    #     selection=[
-    #         ("a4", "A4"),
-    #         ("a5", "A5"),
-    #     ],
-    #     string="Paper Size",
-    #     required=True,
-    #     default="a4",
-    # )
+    paper_size = fields.Selection(
+        selection=[
+            ("a4", "A4"),
+            ("a5", "A5"),
+        ],
+        string="Paper Size",
+        required=True,
+        default="a4",
+    )
     billing_date = fields.Date(
         string="Billing Date",
         required=True,
@@ -145,10 +145,19 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
         return value if value not in (False, None) else fallback
 
     @api.model
-    def _validate_invoices(self, invoices):
+    def _get_default_bank_line_commands(self):
+        return [
+            (0, 0, dict(line_values))
+            for line_values in self.DEFAULT_BANK_LINES
+        ]
+
+    @api.model
+    def _validate_invoices(self, invoices, allow_empty=False):
         invoices = invoices.exists()
 
         if not invoices:
+            if allow_empty:
+                return invoices
             raise UserError(_("No customer invoices selected."))
 
         if any(invoice.move_type != "out_invoice" for invoice in invoices):
@@ -165,6 +174,23 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
         return invoices
 
     @api.model
+    def _get_company_address_text(self, company):
+        partner = company.partner_id
+        parts = [
+            company.name or partner.name,
+            partner.street,
+            partner.street2,
+            partner.city,
+            partner.state_id.name,
+            partner.country_id.name,
+        ]
+        return ", ".join(part for part in parts if part)
+
+    def _get_from_text(self):
+        self.ensure_one()
+        return self.from_text or self._get_company_address_text(self.company_id)
+
+    @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
 
@@ -172,25 +198,53 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
         active_id = self.env.context.get("active_id")
         if not active_ids and active_id:
             active_ids = [active_id]
+        active_ids = [active_id for active_id in active_ids if active_id]
 
-        if self.env.context.get("active_model") and self.env.context.get("active_model") != "account.move":
+        allow_empty = bool(
+            self.env.context.get("studio")
+            or self.env.context.get("customer_invoice_billing_allow_empty")
+        )
+
+        if (
+            self.env.context.get("active_model")
+            and self.env.context.get("active_model") != "account.move"
+            and not allow_empty
+        ):
             raise UserError(_("Invoice Billing must be opened from customer invoices."))
 
         invoices = self.env["account.move"].browse(active_ids)
-        invoices = self._validate_invoices(invoices)
+        invoices = self._validate_invoices(invoices, allow_empty=allow_empty)
+        company = self.env.company
+
+        if not invoices:
+            res.update(
+                {
+                    "paper_size": "a5",
+                    "bill_to_text": "",
+                    "from_text": self._get_company_address_text(company),
+                    "currency_id": company.currency_id.id,
+                    "company_id": company.id,
+                    "total_amount": 0.0,
+                    "approved_by_name": self._get_last_input("approved_by_name"),
+                    "approved_by_position": self._get_last_input("approved_by_position"),
+                    "prepared_by_name": self._get_last_input("prepared_by_name"),
+                    "prepared_by_position": self._get_last_input("prepared_by_position"),
+                    "bank_line_ids": self._get_default_bank_line_commands(),
+                }
+            )
+            return res
 
         partner = invoices[0].partner_id
         currency = invoices[0].currency_id
-        company = self.env.company
 
         res.update(
             {
-                # "paper_size": res.get("paper_size") or "a4",
+                "paper_size": "a5" if len(invoices) <= 5 else "a4",
                 "invoice_ids": [(6, 0, invoices.ids)],
                 "partner_id": partner.id,
                 # "bill_to_partner_id": partner.id,
                 "bill_to_text": partner.display_name or partner.name or "",
-                "from_text": company.name or "Victoria Hospital",
+                "from_text": self._get_company_address_text(company),
                 "currency_id": currency.id,
                 "company_id": company.id,
                 "total_amount": sum(invoices.mapped("amount_total")),
@@ -213,10 +267,7 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
                 "approved_by_position": self._get_last_input("approved_by_position"),
                 "prepared_by_name": self._get_last_input("prepared_by_name"),
                 "prepared_by_position": self._get_last_input("prepared_by_position"),
-                "bank_line_ids": [
-                    (0, 0, dict(line_values))
-                    for line_values in self.DEFAULT_BANK_LINES
-                ],
+                "bank_line_ids": self._get_default_bank_line_commands(),
             }
         )
 
@@ -272,15 +323,26 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
             return self.custom_remark or ""
         return remark_map.get(self.remark, "")
 
-    # def _get_paper_size_label(self):
-    #     self.ensure_one()
-    #     return dict(self._fields["paper_size"].selection).get(self.paper_size, "")
+    def _get_paper_size_label(self):
+        self.ensure_one()
+        return dict(self._fields["paper_size"].selection).get(self.paper_size, "")
 
     def action_print_billing(self):
         self.ensure_one()
         self._validate_invoices(self.invoice_ids)
         self._save_last_inputs()
 
-        return self.env.ref(
-            "customer_invoice_billing.action_report_customer_invoice_billing"
-        ).report_action(self)
+        report_ref = (
+            "customer_invoice_billing.action_report_customer_invoice_billing_a5"
+            if self.paper_size == "a5"
+            else "customer_invoice_billing.action_report_customer_invoice_billing"
+        )
+
+        return self.env.ref(report_ref).report_action(
+            self.invoice_ids,
+            data={
+                "wizard_id": self.id,
+                "active_ids": self.invoice_ids.ids,
+                "paper_size": self.paper_size,
+            },
+        )

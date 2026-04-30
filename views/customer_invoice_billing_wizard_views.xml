@@ -10,7 +10,7 @@
 
                 <group>
                     <group string="Billing Info">
-                        <!-- <field name="paper_size"/> -->
+                        <field name="paper_size"/>
                         <field name="billing_date"/>
                         <field name="sequence_no"/>
                         <field name="remark"/>
@@ -27,16 +27,16 @@
                     </group>
                 </group>
 
-                <group string="Bill To / From">
+                <!-- <group string="Bill To / From">
                     <group>
                         <field name="partner_id"/>
-                        <!-- <field name="bill_to_partner_id"/> -->
+                        <field name="bill_to_partner_id"/>
                     </group>
                     <group>
                         <field name="bill_to_text" groups="base.group_no_one"/>
                         <field name="from_text" groups="base.group_no_one"/>
                     </group>
-                </group>
+                </group> -->
 
                 <group string="Contact">
                     <field name="contact_name"/>
@@ -44,7 +44,7 @@
                     <field name="contact_email"/>
                 </group>
 
-                <group string="Bank Information" groups="base.group_no_one">
+                <!-- <group string="Bank Information" groups="base.group_no_one">
                     <field name="bank_line_ids" nolabel="1" groups="base.group_no_one">
                         <list editable="bottom" create="1" delete="1">
                             <field name="sequence" widget="handle"/>
@@ -54,7 +54,7 @@
                             <field name="currency_name"/>
                         </list>
                     </field>
-                </group>
+                </group> -->
 
                 <group string="Signatures">
                     <group string="Approved By">

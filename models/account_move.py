@@ -11,6 +11,9 @@ class AccountMove(models.Model):
         if not invoices:
             raise UserError(_("No customer invoices selected."))
 
+        if any(invoice.state != 'posted' for invoice in invoices):
+            raise UserError(_("You can only print billing for posted invoices."))
+
         if any(invoice.move_type != "out_invoice" for invoice in invoices):
             raise UserError(_("Billing can only be printed for customer invoices."))
 
