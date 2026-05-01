@@ -239,7 +239,7 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
 
         res.update(
             {
-                "paper_size": "a5" if len(invoices) <= 5 else "a4",
+                "paper_size": "a5" if len(invoices) <= 20 else "a4",
                 "invoice_ids": [(6, 0, invoices.ids)],
                 "partner_id": partner.id,
                 # "bill_to_partner_id": partner.id,
@@ -248,21 +248,9 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
                 "currency_id": currency.id,
                 "company_id": company.id,
                 "total_amount": sum(invoices.mapped("amount_total")),
-                "contact_name": self._get_last_input(
-                    "contact_name",
-                    fallback=partner.name or "",
-                    partner=partner,
-                ),
-                "contact_phone": self._get_last_input(
-                    "contact_phone",
-                    fallback=partner.phone or "",
-                    partner=partner,
-                ),
-                "contact_email": self._get_last_input(
-                    "contact_email",
-                    fallback=partner.email or "",
-                    partner=partner,
-                ),
+                "contact_name": self._get_last_input("contact_name"),
+                "contact_phone": self._get_last_input("contact_phone"),
+                "contact_email": self._get_last_input("contact_email"),
                 "approved_by_name": self._get_last_input("approved_by_name"),
                 "approved_by_position": self._get_last_input("approved_by_position"),
                 "prepared_by_name": self._get_last_input("prepared_by_name"),
@@ -277,15 +265,10 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
         self.ensure_one()
         config = self.env["ir.config_parameter"].sudo()
 
-        partner_fields = ("contact_name", "contact_phone", "contact_email")
-        for field_name in partner_fields:
-            if self.partner_id:
-                config.set_param(
-                    self._last_input_key(field_name, partner=self.partner_id),
-                    self[field_name] or "",
-                )
-
         global_fields = (
+            "contact_name",
+            "contact_phone",
+            "contact_email",
             "approved_by_name",
             "approved_by_position",
             "prepared_by_name",
