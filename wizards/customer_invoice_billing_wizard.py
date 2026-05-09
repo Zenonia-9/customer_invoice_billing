@@ -131,7 +131,7 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
 
     contact_name = fields.Char(string="Contact Name")
     contact_phone = fields.Char(string="Contact Phone")
-    contact_email = fields.Char(string="Contact Email")
+    contact_email = fields.Char(string="Contact Email", default="receivable.finance@witoriyahospital.com")
 
     approved_by_name = fields.Char(string="Approved By Name")
     approved_by_position = fields.Char(string="Approved By Position")
