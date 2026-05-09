@@ -6,14 +6,19 @@
                 <t t-set="cib_report_variant" t-value="'a4'"/>
 
                 <style>
+                    @page {
+                        size: A4 portrait;
+                        margin: 5mm 7mm 10mm 7mm;
+                    }
+
                     /* Base Document Styling */
                     .cib-page {
                         color: #222;
                         font-family: 'Segoe UI', Arial, sans-serif;
-                        font-size: 13px;
-                        line-height: 1.2;
+                        font-size: 12px;
+                        line-height: 1.15;
                         margin: 0 auto;
-                        max-width: 188mm;
+                        max-width: 190mm;
                     }
 
                     .cib-page * {
@@ -24,9 +29,9 @@
                     .cib-header {
                         display: table;
                         width: 100%;
-                        margin-bottom: 18px;
+                        margin-bottom: 12px;
                         border-bottom: 2px solid #333;
-                        padding-bottom: 12px;
+                        padding-bottom: 8px;
                     }
 
                     .cib-header-left,
@@ -43,7 +48,7 @@
                     .cib-header-center {
                         width: 40%;
                         text-align: center;
-                        vertical-align: bottom;
+                        vertical-align: middle;
                         padding-top: 4px;
                     }
 
@@ -54,7 +59,7 @@
                     }
 
                     .cib-logo {
-                        max-height: 110px;
+                        max-height: 100px;
                         max-width: 300px;
                         object-fit: contain;
                     }
@@ -108,11 +113,11 @@
                     .cib-table th,
                     .cib-table td {
                         border: 1px solid #616161;
-                        padding: 4px 6px;
+                        padding: 3px 5px;
                         vertical-align: middle;
                         overflow-wrap: anywhere;
-                        font-size: 12px;
-                        line-height: 1.05;
+                        font-size: 11.5px;
+                        line-height: 1.1;
                     }
 
                     .cib-table th {
@@ -128,13 +133,19 @@
                     }
 
                     .cib-info-table th {
-                        width: 25mm;
+                        width: 35mm;
                         text-align: left;
                         font-weight: bold;
+                        letter-spacing: 0;
+                        text-transform: none;
                     }
 
                     .cib-info-table td {
                         font-weight: normal;
+                    }
+
+                    .cib-pre-line {
+                        white-space: pre-line;
                     }
 
                     .cib-invoice-table th {
@@ -198,6 +209,73 @@
                         font-size: 12px;
                     }
 
+                    .cib-bank-layout {
+                        margin-bottom: 10px;
+                        page-break-inside: avoid;
+                        break-inside: avoid;
+                    }
+
+                    .cib-bank-title {
+                        color: #000;
+                        font-size: 14px;
+                        font-weight: bold;
+                        margin-bottom: 4px;
+                    }
+
+                    .cib-bank-grid {
+                        width: 100%;
+                        border-collapse: collapse;
+                        table-layout: fixed;
+                    }
+
+                    .cib-bank-grid col.cib-bank-label-col {
+                        width: 34mm;
+                    }
+
+                    .cib-bank-grid th,
+                    .cib-bank-grid td {
+                        border: 1px solid #000;
+                        color: #000;
+                        font-size: 11px;
+                        line-height: 1.15;
+                        padding: 3px 4px;
+                    }
+
+                    .cib-bank-grid th {
+                        background: #fff;
+                        font-weight: bold;
+                        letter-spacing: 0;
+                        text-align: left;
+                        text-transform: none;
+                        white-space: nowrap;
+                    }
+
+                    .cib-bank-grid .cib-bank-separator {
+                        text-align: center;
+                        font-weight: bold;
+                    }
+
+                    .cib-bank-grid .cib-bank-account-name {
+                        font-weight: bold;
+                        text-align: center;
+                    }
+
+                    .cib-bank-grid .cib-bank-value {
+                        font-weight: bold;
+                        text-align: center;
+                    }
+
+                    .cib-bank-grid .cib-bank-account-number {
+                        background: #dff3df;
+                    }
+
+                    .cib-bank-grid .cib-bank-spacer td {
+                        border-left-color: transparent;
+                        border-right-color: transparent;
+                        height: 8px;
+                        padding: 0;
+                    }
+
                     /* Contact Block */
                     .cib-contact-block {
                         display: table;
@@ -218,7 +296,7 @@
                         font-weight: bold;
                         font-size: 12px;
                         text-transform: uppercase;
-                        color: #464646;
+                        color: #1f1f1f;
                     }
 
                     .cib-contact-line {
@@ -329,8 +407,7 @@
                             <div class="cib-meta-row">
                                 <span class="cib-meta-label">Date</span>
                                 <span>: </span>
-                                <strong t-field="doc.billing_date"
-                                        t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
+                                <strong t-esc="doc._format_report_date(doc.billing_date)"/>
                             </div>
                         </div>
                     </div>
@@ -339,15 +416,33 @@
                     <table class="cib-table cib-info-table">
                         <tbody>
                             <tr>
-                                <th>Bill To</th>
+                                <th>Customer Name</th>
                                 <td>
                                     <span t-esc="doc.bill_to_text or doc.partner_id.display_name or ''"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Customer Address</th>
+                                <td>
+                                    <span t-esc="doc._get_customer_address_text()"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Customer Phone</th>
+                                <td>
+                                    <span t-esc="doc._get_customer_phone_text()"/>
                                 </td>
                             </tr>
                             <tr>
                                 <th>From</th>
                                 <td>
                                     <span t-esc="doc._get_from_text()"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Description</th>
+                                <td>
+                                    <span t-esc="doc._get_description_period()"/>
                                 </td>
                             </tr>
                         </tbody>
@@ -358,11 +453,11 @@
                         <thead>
                             <tr>
                                 <th style="width: 10mm;">No</th>
-                                <th style="width: 20mm;">Date</th>
-                                <th>Description</th>
-                                <th style="width: 30mm;">Invoice ID</th>
-                                <th style="width: 35mm;">Amount (KS)</th>
-                                <th style="width: 20mm;">CPI</th>
+                                <th style="width: 30mm;">Date</th>
+                                <th style="width: 30mm;">Invoice No.</th>
+                                <th style="width: 20mm;">PRN No.</th>
+                                <th>Name</th>
+                                <th style="width: 35mm;">Amount</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -371,31 +466,29 @@
                                     <td class="cib-text-center">
                                         <span t-esc="invoice_index + 1"/>
                                     </td>
-                                    <td class="cib-text-center">
-                                        <span t-field="invoice.invoice_date"
-                                            t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
-                                    </td>
-                                    <td>
-                                        <span t-esc="doc._get_invoice_vendor_ref(invoice)"/>
+                                    <td class="cib-text-center" style="white-space: nowrap;">
+                                        <span t-esc="doc._format_report_date(invoice.invoice_date)"/>
                                     </td>
                                     <td class="cib-text-center">
                                         <span t-esc="doc._get_invoice_anzer_id(invoice)"/>
                                     </td>
-                                    <td class="cib-text-right">
-                                        <span t-esc="'{:,.2f} {}'.format(invoice.amount_total or 0.0, doc.currency_id.symbol or 'K')"/>
-                                    </td>
                                     <td class="cib-text-center">
                                         <span t-esc="doc._get_invoice_cpi(invoice)"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="doc._get_invoice_name(invoice)"/>
+                                    </td>
+                                    <td class="cib-text-right">
+                                        <span t-esc="'{:,.2f} {}'.format(invoice.amount_total or 0.0, doc.currency_id.symbol or 'K')"/>
                                     </td>
                                 </tr>
                             </t>
 
                             <tr class="cib-total-row">
-                                <td colspan="4" class="cib-text-right">Total Amount</td>
+                                <td colspan="5" class="cib-text-right">Total Amount</td>
                                 <td class="cib-text-right">
                                     <span t-esc="'{:,.2f} {}'.format(doc.total_amount or 0.0, doc.currency_id.symbol or 'K')"/>
                                 </td>
-                                <td/>
                             </tr>
                         </tbody>
                     </table>
@@ -410,35 +503,56 @@
 
                         <!-- BANK INFORMATION -->
                         <div class="cib-section" t-if="doc.bank_line_ids">
-                            <div class="cib-section-title">Bank Information:</div>
-                            <table class="cib-table cib-bank-table">
-                                <tbody>
-                                    <tr>
-                                        <th>Account Number</th>
-                                        <td t-foreach="doc.bank_line_ids" t-as="bank">
-                                            <span t-esc="bank.account_number"/>
-                                        </td>
-                                    </tr>
+                            <t t-set="bank_lines" t-value="doc.bank_line_ids.sorted('sequence')"/>
+                            <div class="cib-bank-layout">
+                                <div class="cib-bank-title">Bank Information</div>
+                                <table class="cib-bank-grid">
+                                    <colgroup>
+                                        <col class="cib-bank-label-col"/>
+                                        <col/>
+                                        <col/>
+                                    </colgroup>
+                                    <tbody>
                                     <tr>
                                         <th>Account Name</th>
-                                        <td t-foreach="doc.bank_line_ids" t-as="bank">
-                                            <span t-esc="bank.account_name"/>
+                                        <td colspan="2" class="cib-bank-account-name">
+                                            <span t-esc="bank_lines and bank_lines[0].account_name or ''"/>
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <th>Bank Name</th>
-                                        <td t-foreach="doc.bank_line_ids" t-as="bank">
-                                            <span t-esc="bank.bank_name"/>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>Currency</th>
-                                        <td t-foreach="doc.bank_line_ids" t-as="bank">
-                                            <span t-esc="bank.currency_name"/>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                    <t t-foreach="[bank_lines[:2], bank_lines[2:4]]" t-as="bank_group">
+                                        <t t-if="bank_group">
+                                            <tr class="cib-bank-spacer" t-if="bank_group_index">
+                                                <td colspan="3"/>
+                                            </tr>
+                                            <tr>
+                                                <th>Account Number</th>
+                                                <td t-foreach="bank_group" t-as="bank" class="cib-bank-value cib-bank-account-number">
+                                                    <span t-esc="bank.account_number"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>Bank Name</th>
+                                                <td t-foreach="bank_group" t-as="bank" class="cib-bank-value">
+                                                    <span t-esc="bank.bank_name"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>Branch Name</th>
+                                                <td t-foreach="bank_group" t-as="bank" class="cib-bank-value">
+                                                    <span t-esc="bank.branch_name"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>Currency</th>
+                                                <td t-foreach="bank_group" t-as="bank" class="cib-bank-value">
+                                                    <span t-esc="bank.currency_name"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                     <div class="cib-footer-keep-together">
@@ -497,17 +611,17 @@
                 <style>
                     @page {
                         size: A5 portrait;
-                        margin: 7mm 7mm 8mm 7mm;
+                        margin: 5mm 4mm 10mm 4mm;
                     }
 
                     /* Base Document Styling */
                     .cib-page {
                         color: #222;
                         font-family: 'Segoe UI', Arial, sans-serif;
-                        font-size: 10px;
-                        line-height: 1.25;
+                        font-size: 9px;
+                        line-height: 1.18;
                         margin: 0 auto;
-                        max-width: 134mm;
+                        max-width: 140mm;
                     }
 
                     .cib-page * {
@@ -518,9 +632,9 @@
                     .cib-header {
                         display: table;
                         width: 100%;
-                        margin-bottom: 10px;
+                        margin-bottom: 7px;
                         border-bottom: 2px solid #333;
-                        padding-bottom: 7px;
+                        padding-bottom: 5px;
                     }
 
                     .cib-header-left,
@@ -562,13 +676,13 @@
 
                     .cib-company-title {
                         font-weight: 900;
-                        font-size: 12px;
+                        font-size: 11px;
                         letter-spacing: 0.5px;
                         text-transform: uppercase;
                     }
 
                     .cib-title {
-                        font-size: 11px;
+                        font-size: 10px;
                         font-weight: bold;
                         color: #555;
                         margin-top: 1px;
@@ -602,17 +716,17 @@
                     .cib-table th,
                     .cib-table td {
                         border: 1px solid #616161;
-                        padding: 3px 4px;
+                        padding: 2px 3px;
                         vertical-align: middle;
                         overflow-wrap: anywhere;
-                        font-size: 9.5px;
-                        line-height: 1.15;
+                        font-size: 9px;
+                        line-height: 1.1;
                     }
 
                     .cib-table th {
                         background: #f8f9fa;
                         font-weight: bold;
-                        font-size: 9.5px;
+                        font-size: 9px;
                         text-transform: uppercase;
                         letter-spacing: 0.2px;
                     }
@@ -622,13 +736,19 @@
                     }
 
                     .cib-info-table th {
-                        width: 18mm;
+                        width: 27mm;
                         text-align: left;
                         font-weight: bold;
+                        letter-spacing: 0;
+                        text-transform: none;
                     }
 
                     .cib-info-table td {
                         font-weight: normal;
+                    }
+
+                    .cib-pre-line {
+                        white-space: pre-line;
                     }
 
                     .cib-invoice-table th {
@@ -651,7 +771,7 @@
                     .cib-total-row td {
                         background: #fdfdfe;
                         font-weight: bold;
-                        font-size: 9.5px;
+                        font-size: 9px;
                         border-top: 2px solid #333;
                     }
 
@@ -681,7 +801,7 @@
 
                     .cib-bank-table th {
                         background: #fcfcfc;
-                        font-size: 9.5px;
+                        font-size: 9px;
                         width: 27mm;
                         text-align: left;
                         white-space: nowrap;
@@ -689,7 +809,74 @@
 
                     .cib-bank-table td {
                         text-align: center;
-                        font-size: 9.5px;
+                        font-size: 9px;
+                    }
+
+                    .cib-bank-layout {
+                        margin-bottom: 7px;
+                        page-break-inside: avoid;
+                        break-inside: avoid;
+                    }
+
+                    .cib-bank-title {
+                        color: #000;
+                        font-size: 10px;
+                        font-weight: bold;
+                        margin-bottom: 1px;
+                    }
+
+                    .cib-bank-grid {
+                        width: 100%;
+                        border-collapse: collapse;
+                        table-layout: fixed;
+                    }
+
+                    .cib-bank-grid col.cib-bank-label-col {
+                        width: 27mm;
+                    }
+
+                    .cib-bank-grid th,
+                    .cib-bank-grid td {
+                        border: 1px solid #000;
+                        color: #000;
+                        font-size: 9px;
+                        line-height: 1.1;
+                        padding: 2px 3px;
+                    }
+
+                    .cib-bank-grid th {
+                        background: #fff;
+                        font-weight: bold;
+                        letter-spacing: 0;
+                        text-align: left;
+                        text-transform: none;
+                        white-space: nowrap;
+                    }
+
+                    .cib-bank-grid .cib-bank-separator {
+                        text-align: center;
+                        font-weight: bold;
+                    }
+
+                    .cib-bank-grid .cib-bank-account-name {
+                        font-weight: bold;
+                        text-align: center;
+                    }
+
+                    .cib-bank-grid .cib-bank-value {
+                        font-weight: bold;
+                        text-align: center;
+                    }
+
+                    .cib-bank-grid .cib-bank-account-number {
+                        background: #dff3df;
+                    }
+
+                    .cib-bank-grid .cib-bank-spacer td {
+                        border-left-color: transparent;
+                        border-right-color: transparent;
+                        height: 5px;
+                        padding: 0;
                     }
 
                     /* Contact Block */
@@ -710,7 +897,7 @@
                     .cib-contact-label {
                         width: 18mm;
                         font-weight: bold;
-                        font-size: 9.5px;
+                        font-size: 9px;
                         text-transform: uppercase;
                         color: #464646;
                     }
@@ -756,7 +943,7 @@
                     }
 
                     .cib-signature-position {
-                        font-size: 9.5px;
+                        font-size: 9px;
                         color: #464646;
                     }
                     
@@ -821,8 +1008,7 @@
                             <div class="cib-meta-row">
                                 <span class="cib-meta-label">Date</span>
                                 <span>: </span>
-                                <strong t-field="doc.billing_date"
-                                        t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
+                                <strong t-esc="doc._format_report_date(doc.billing_date)"/>
                             </div>
                         </div>
                     </div>
@@ -831,15 +1017,33 @@
                     <table class="cib-table cib-info-table">
                         <tbody>
                             <tr>
-                                <th>Bill To</th>
+                                <th>Customer Name</th>
                                 <td>
                                     <span t-esc="doc.bill_to_text or doc.partner_id.display_name or ''"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Customer Address</th>
+                                <td>
+                                    <span t-esc="doc._get_customer_address_text()"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Customer Phone</th>
+                                <td>
+                                    <span t-esc="doc._get_customer_phone_text()"/>
                                 </td>
                             </tr>
                             <tr>
                                 <th>From</th>
                                 <td>
                                     <span t-esc="doc._get_from_text()"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Description</th>
+                                <td>
+                                    <span t-esc="doc._get_description_period()"/>
                                 </td>
                             </tr>
                         </tbody>
@@ -851,10 +1055,10 @@
                             <tr>
                                 <th style="width: 7mm;">No</th>
                                 <th style="width: 17mm;">Date</th>
-                                <th>Description</th>
-                                <th style="width: 22mm;">Invoice ID</th>
-                                <th style="width: 27mm;">Amount (KS)</th>
-                                <th style="width: 15mm;">CPI</th>
+                                <th style="width: 22mm;">Invoice No.</th>
+                                <th style="width: 13mm;">PRN No.</th>
+                                <th>Name</th>
+                                <th style="width: 27mm;">Amount</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -863,31 +1067,29 @@
                                     <td class="cib-text-center">
                                         <span t-esc="invoice_index + 1"/>
                                     </td>
-                                    <td class="cib-text-center">
-                                        <span t-field="invoice.invoice_date"
-                                            t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
-                                    </td>
-                                    <td>
-                                        <span t-esc="doc._get_invoice_vendor_ref(invoice)"/>
+                                    <td class="cib-text-center" style="white-space: nowrap;">
+                                        <span t-esc="doc._format_report_date(invoice.invoice_date)"/>
                                     </td>
                                     <td class="cib-text-center">
                                         <span t-esc="doc._get_invoice_anzer_id(invoice)"/>
                                     </td>
-                                    <td class="cib-text-right">
-                                        <span t-esc="'{:,.2f} {}'.format(invoice.amount_total or 0.0, doc.currency_id.symbol or 'K')"/>
-                                    </td>
                                     <td class="cib-text-center">
                                         <span t-esc="doc._get_invoice_cpi(invoice)"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="doc._get_invoice_name(invoice)"/>
+                                    </td>
+                                    <td class="cib-text-right">
+                                        <span t-esc="'{:,.2f} {}'.format(invoice.amount_total or 0.0, doc.currency_id.symbol or 'K')"/>
                                     </td>
                                 </tr>
                             </t>
 
                             <tr class="cib-total-row">
-                                <td colspan="4" class="cib-text-right">Total Amount</td>
+                                <td colspan="5" class="cib-text-right">Total Amount</td>
                                 <td class="cib-text-right">
                                     <span t-esc="'{:,.2f} {}'.format(doc.total_amount or 0.0, doc.currency_id.symbol or 'K')"/>
                                 </td>
-                                <td/>
                             </tr>
                         </tbody>
                     </table>
@@ -902,35 +1104,56 @@
 
                         <!-- BANK INFORMATION -->
                         <div class="cib-section" t-if="doc.bank_line_ids">
-                            <div class="cib-section-title">Bank Information:</div>
-                            <table class="cib-table cib-bank-table">
-                                <tbody>
-                                    <tr>
-                                        <th>Account Number</th>
-                                        <td t-foreach="doc.bank_line_ids" t-as="bank">
-                                            <span t-esc="bank.account_number"/>
-                                        </td>
-                                    </tr>
+                            <t t-set="bank_lines" t-value="doc.bank_line_ids.sorted('sequence')"/>
+                            <div class="cib-bank-layout">
+                                <div class="cib-bank-title">Bank Information</div>
+                                <table class="cib-bank-grid">
+                                    <colgroup>
+                                        <col class="cib-bank-label-col"/>
+                                        <col/>
+                                        <col/>
+                                    </colgroup>
+                                    <tbody>
                                     <tr>
                                         <th>Account Name</th>
-                                        <td t-foreach="doc.bank_line_ids" t-as="bank">
-                                            <span t-esc="bank.account_name"/>
+                                        <td colspan="2" class="cib-bank-account-name">
+                                            <span t-esc="bank_lines and bank_lines[0].account_name or ''"/>
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <th>Bank Name</th>
-                                        <td t-foreach="doc.bank_line_ids" t-as="bank">
-                                            <span t-esc="bank.bank_name"/>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>Currency</th>
-                                        <td t-foreach="doc.bank_line_ids" t-as="bank">
-                                            <span t-esc="bank.currency_name"/>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                    <t t-foreach="[bank_lines[:2], bank_lines[2:4]]" t-as="bank_group">
+                                        <t t-if="bank_group">
+                                            <tr class="cib-bank-spacer" t-if="bank_group_index">
+                                                <td colspan="3"/>
+                                            </tr>
+                                            <tr>
+                                                <th>Account Number</th>
+                                                <td t-foreach="bank_group" t-as="bank" class="cib-bank-value cib-bank-account-number">
+                                                    <span t-esc="bank.account_number"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>Bank Name</th>
+                                                <td t-foreach="bank_group" t-as="bank" class="cib-bank-value">
+                                                    <span t-esc="bank.bank_name"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>Branch Name</th>
+                                                <td t-foreach="bank_group" t-as="bank" class="cib-bank-value">
+                                                    <span t-esc="bank.branch_name"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>Currency</th>
+                                                <td t-foreach="bank_group" t-as="bank" class="cib-bank-value">
+                                                    <span t-esc="bank.currency_name"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
 

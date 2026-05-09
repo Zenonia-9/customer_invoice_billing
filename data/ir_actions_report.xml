@@ -6,6 +6,7 @@
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">customer_invoice_billing.report_invoice_billing_document</field>
         <field name="report_file">customer_invoice_billing.report_invoice_billing_document</field>
+        <field name="paperformat_id" ref="customer_invoice_billing.paperformat_invoice_a4"/>
         <field name="print_report_name">'Invoice Billing - %s' % (object.partner_id.name or 'Customer')</field>
         <field name="binding_model_id" eval="False"/>
     </record>
@@ -16,6 +17,7 @@
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">customer_invoice_billing.invoice_billing_doc_a5</field>
         <field name="report_file">customer_invoice_billing.invoice_billing_doc_a5</field>
+        <field name="paperformat_id" ref="customer_invoice_billing.paperformat_invoice_a5"/>
         <field name="print_report_name">'Invoice Billing - %s' % (object.partner_id.name or 'Customer')</field>
         <field name="binding_model_id" eval="False"/>
     </record>

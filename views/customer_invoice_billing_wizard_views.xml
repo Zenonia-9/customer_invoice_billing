@@ -10,13 +10,16 @@
 
                 <group>
                     <group string="Billing Info">
-                        <field name="paper_size"/>
-                        <field name="billing_date"/>
                         <field name="sequence_no"/>
+                        <field name="partner_id"/>
+                        <field name="billing_date"/>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
                         <field name="remark"/>
                         <field name="custom_remark" invisible="remark != 'other'"/>
                     </group>
                     <group string="Amount">
+                        <field name="paper_size"/>
                         <label for="total_amount"/>
                         <div class="o_row">
                             <field name="total_amount" readonly="1"/>
@@ -45,12 +48,13 @@
                 </group>
 
                 <!-- <group string="Bank Information" groups="base.group_no_one">
-                    <field name="bank_line_ids" nolabel="1" groups="base.group_no_one">
+                    <field name="bank_line_ids" nolabel="1">
                         <list editable="bottom" create="1" delete="1">
                             <field name="sequence" widget="handle"/>
                             <field name="account_number"/>
                             <field name="account_name"/>
                             <field name="bank_name"/>
+                            <field name="branch_name"/>
                             <field name="currency_name"/>
                         </list>
                     </field>

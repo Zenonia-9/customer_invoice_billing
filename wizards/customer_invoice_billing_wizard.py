@@ -16,6 +16,7 @@ class CustomerInvoiceBillingBankLine(models.TransientModel):
     account_number = fields.Char(string="Account Number", required=True)
     account_name = fields.Char(string="Account Name", required=True)
     bank_name = fields.Char(string="Bank Name", required=True)
+    branch_name = fields.Char(string="Branch Name")
     currency_name = fields.Char(string="Currency", required=True)
 
 
@@ -26,30 +27,34 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
     DEFAULT_BANK_LINES = (
         {
             "sequence": 10,
-            "account_number": "000-501-020-000-1214",
-            "account_name": "Victoria Hospital",
-            "bank_name": "A Bank",
+            "account_number": "2000 595584",
+            "account_name": "Victoria Hospital (Thukha Saytanar Co.,Ltd.)",
+            "bank_name": "Ayeyarwaddy Bank",
+            "branch_name": "Ygn(1) Hlaing, Ywama",
             "currency_name": "Kyats",
         },
         {
             "sequence": 20,
-            "account_number": "200-005-955-84",
-            "account_name": "Victoria Hospital",
-            "bank_name": "AYA Bank",
+            "account_number": "0005 0102 0000 1214",
+            "account_name": "Victoria Hospital (Thukha Saytanar Co.,Ltd.)",
+            "bank_name": "A Bank",
+            "branch_name": "Boaungkyaw Branch",
             "currency_name": "Kyats",
         },
         {
             "sequence": 30,
-            "account_number": "3181-0331-8002-57501",
-            "account_name": "Victoria Hospital",
-            "bank_name": "KBZ Bank",
+            "account_number": "0010 1005 0002 2233",
+            "account_name": "Victoria Hospital (Thukha Saytanar Co.,Ltd.)",
+            "bank_name": "CB Bank",
+            "branch_name": "HO Extension Branch",
             "currency_name": "Kyats",
         },
         {
             "sequence": 40,
-            "account_number": "0010-1005-0002-2233",
-            "account_name": "Victoria Hospital",
-            "bank_name": "CB Bank",
+            "account_number": "3181 0331 8002 57501",
+            "account_name": "Victoria Hospital (Thukha Saytanar Co.,Ltd.)",
+            "bank_name": "KBZ Bank",
+            "branch_name": "Ygn-110, Mindama Branch",
             "currency_name": "Kyats",
         },
     )
@@ -65,6 +70,16 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
     )
     billing_date = fields.Date(
         string="Billing Date",
+        required=True,
+        default=fields.Date.context_today,
+    )
+    date_from = fields.Date(
+        string="Date From",
+        required=True,
+        default=fields.Date.context_today,
+    )
+    date_to = fields.Date(
+        string="Date To",
         required=True,
         default=fields.Date.context_today,
     )
@@ -97,8 +112,7 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
     )
     partner_id = fields.Many2one(
         "res.partner",
-        string="Customer",
-        readonly=True,
+        string="Customer"
     )
     company_id = fields.Many2one(
         "res.company",
@@ -190,6 +204,37 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
         self.ensure_one()
         return self.from_text or self._get_company_address_text(self.company_id)
 
+    def _get_customer_address_text(self):
+        self.ensure_one()
+        partner = self.partner_id
+        parts = [
+            partner.street,
+            partner.street2,
+            partner.city,
+            partner.state_id.name,
+            partner.country_id.name,
+        ]
+        return ", ".join(part for part in parts if part)
+
+    def _get_customer_phone_text(self):
+        self.ensure_one()
+        return self.partner_id.phone or ""
+
+    @api.model
+    def _format_report_date(self, date_value):
+        date_value = fields.Date.to_date(date_value)
+        if not date_value:
+            return ""
+        return f"{date_value.day}-{date_value.strftime('%b')}-{date_value.year}"
+
+    def _get_description_period(self):
+        self.ensure_one()
+        date_from = self._format_report_date(self.date_from)
+        date_to = self._format_report_date(self.date_to)
+        if date_from and date_to:
+            return f"{date_from} to {date_to}"
+        return date_from or date_to
+
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
@@ -220,6 +265,8 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
             res.update(
                 {
                     "paper_size": "a5",
+                    "date_from": fields.Date.context_today(self),
+                    "date_to": fields.Date.context_today(self),
                     "bill_to_text": "",
                     "from_text": self._get_company_address_text(company),
                     "currency_id": company.currency_id.id,
@@ -236,10 +283,15 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
 
         partner = invoices[0].partner_id
         currency = invoices[0].currency_id
+        invoice_dates = invoices.mapped("invoice_date")
+        invoice_dates = [invoice_date for invoice_date in invoice_dates if invoice_date]
+        default_period_date = fields.Date.context_today(self)
 
         res.update(
             {
                 "paper_size": "a5" if len(invoices) <= 20 else "a4",
+                "date_from": min(invoice_dates) if invoice_dates else default_period_date,
+                "date_to": max(invoice_dates) if invoice_dates else default_period_date,
                 "invoice_ids": [(6, 0, invoices.ids)],
                 "partner_id": partner.id,
                 # "bill_to_partner_id": partner.id,
@@ -288,6 +340,12 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
         if "anzer_id" not in invoice._fields:
             return ""
         return invoice.anzer_id or ""
+    
+    def _get_invoice_name(self, invoice):
+        self.ensure_one()
+        vendor_ref = self._get_invoice_vendor_ref(invoice)
+        chars = "".join(char for char in vendor_ref if char.isalpha() or char.isspace())
+        return chars
 
     def _get_invoice_cpi(self, invoice):
         self.ensure_one()
