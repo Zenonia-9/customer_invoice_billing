@@ -225,7 +225,7 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
         date_value = fields.Date.to_date(date_value)
         if not date_value:
             return ""
-        return f"{date_value.day}-{date_value.strftime('%b')}-{date_value.year}"
+        return date_value.strftime("%d-%b-%Y")
 
     def _get_description_period(self):
         self.ensure_one()

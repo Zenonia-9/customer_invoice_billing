@@ -25,7 +25,7 @@
             <field name="page_height">0</field>
             <field name="page_width">0</field>
             <field name="orientation">Portrait</field>
-            <field name="margin_top">5</field>
+            <field name="margin_top">12</field>
             <field name="margin_bottom">10</field>
             <field name="margin_left">4</field>
             <field name="margin_right">4</field>
