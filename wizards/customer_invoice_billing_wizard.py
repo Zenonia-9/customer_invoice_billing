@@ -174,8 +174,8 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
                 return invoices
             raise UserError(_("No customer invoices selected."))
 
-        if any(invoice.move_type != "out_invoice" for invoice in invoices):
-            raise UserError(_("All selected records must be customer invoices."))
+        # if any(invoice.move_type != "out_invoice" for invoice in invoices):
+        #     raise UserError(_("All selected records must be customer invoices."))
 
         partner = invoices[0].partner_id
         if not partner or any(invoice.partner_id != partner for invoice in invoices):
