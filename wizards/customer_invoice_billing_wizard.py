@@ -227,7 +227,7 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
 
     @api.model
     def _get_invoice_billing_amount(self, invoice):
-        return invoice.direction_sign * invoice.amount_total
+        return invoice.amount_total_in_currency_signed
 
     @api.model
     def _format_report_date(self, date_value):
