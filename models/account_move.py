@@ -14,8 +14,13 @@ class AccountMove(models.Model):
         if any(invoice.state != 'posted' for invoice in invoices):
             raise UserError(_("You can only print billing for posted invoices."))
 
-        # if any(invoice.move_type != "out_invoice" for invoice in invoices):
-        #     raise UserError(_("Billing can only be printed for customer invoices."))
+        if any(
+            invoice.move_type not in ("out_invoice", "out_refund")
+            for invoice in invoices
+        ):
+            raise UserError(
+                _("Billing can only be printed for customer invoices and credit notes.")
+            )
 
         partner = invoices[0].partner_id
         if not partner or any(invoice.partner_id != partner for invoice in invoices):

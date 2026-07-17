@@ -174,8 +174,13 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
                 return invoices
             raise UserError(_("No customer invoices selected."))
 
-        # if any(invoice.move_type != "out_invoice" for invoice in invoices):
-        #     raise UserError(_("All selected records must be customer invoices."))
+        if any(
+            invoice.move_type not in ("out_invoice", "out_refund")
+            for invoice in invoices
+        ):
+            raise UserError(
+                _("All selected records must be customer invoices or credit notes.")
+            )
 
         partner = invoices[0].partner_id
         if not partner or any(invoice.partner_id != partner for invoice in invoices):
@@ -219,6 +224,10 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
     def _get_customer_phone_text(self):
         self.ensure_one()
         return self.partner_id.phone or ""
+
+    @api.model
+    def _get_invoice_billing_amount(self, invoice):
+        return invoice.direction_sign * invoice.amount_total
 
     @api.model
     def _format_report_date(self, date_value):
@@ -299,7 +308,10 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
                 "from_text": self._get_company_address_text(company),
                 "currency_id": currency.id,
                 "company_id": company.id,
-                "total_amount": sum(invoices.mapped("amount_total")),
+                "total_amount": sum(
+                    self._get_invoice_billing_amount(invoice)
+                    for invoice in invoices
+                ),
                 "contact_name": self._get_last_input("contact_name"),
                 "contact_phone": self._get_last_input("contact_phone"),
                 "contact_email": self._get_last_input("contact_email"),

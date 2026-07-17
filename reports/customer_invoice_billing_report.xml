@@ -480,7 +480,7 @@
                                         <span t-esc="doc._get_invoice_name(invoice)"/>
                                     </td>
                                     <td class="cib-text-right">
-                                        <span t-esc="'{:,.2f} {}'.format(invoice.amount_total or 0.0, doc.currency_id.symbol or 'K')"/>
+                                        <span t-esc="'{:,.2f} {}'.format(doc._get_invoice_billing_amount(invoice), doc.currency_id.symbol or 'K')"/>
                                     </td>
                                 </tr>
                             </t>
@@ -1082,7 +1082,7 @@
                                         <span t-esc="doc._get_invoice_name(invoice)"/>
                                     </td>
                                     <td class="cib-text-right">
-                                        <span t-esc="'{:,.2f} {}'.format(invoice.amount_total or 0.0, doc.currency_id.symbol or 'K')"/>
+                                        <span t-esc="'{:,.2f} {}'.format(doc._get_invoice_billing_amount(invoice), doc.currency_id.symbol or 'K')"/>
                                     </td>
                                 </tr>
                             </t>
