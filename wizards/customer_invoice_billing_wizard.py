@@ -27,7 +27,7 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
     DEFAULT_BANK_LINES = (
         {
             "sequence": 10,
-            "account_number": "2000 595584",
+            "account_number": "20000 595584",
             "account_name": "Victoria Hospital (Thukha Saytanar Co.,Ltd.)",
             "bank_name": "Ayeyarwaddy Bank",
             "branch_name": "Ygn(1) Hlaing, Ywama",
