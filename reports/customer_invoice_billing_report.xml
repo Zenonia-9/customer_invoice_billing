@@ -462,7 +462,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <t t-foreach="doc.invoice_ids" t-as="invoice">
+                            <t t-foreach="doc.invoice_ids.sorted('invoice_date')" t-as="invoice">
                                 <tr>
                                     <td class="cib-text-center">
                                         <span t-esc="invoice_index + 1"/>
@@ -1064,7 +1064,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <t t-foreach="doc.invoice_ids" t-as="invoice">
+                            <t t-foreach="doc.invoice_ids.sorted('invoice_date')" t-as="invoice">
                                 <tr>
                                     <td class="cib-text-center">
                                         <span t-esc="invoice_index + 1"/>
