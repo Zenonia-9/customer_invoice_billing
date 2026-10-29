@@ -1,3 +1,5 @@
+import re
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
@@ -362,8 +364,8 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
     def _get_invoice_cpi(self, invoice):
         self.ensure_one()
         vendor_ref = self._get_invoice_vendor_ref(invoice)
-        digits = "".join(char for char in vendor_ref if char.isdigit())
-        return digits[-5:] if digits else ""
+        match = re.search(r"-\s*(\d{6})\s*$", vendor_ref)
+        return match.group(1) if match else ""
 
     def _get_remark_text(self):
         self.ensure_one()

@@ -2,7 +2,7 @@
 
 {
     "name": "Customer Invoice Billing",
-    "version": "19.0.1.0.5",
+    "version": "19.0.1.0.6",
     "summary": "Print temporary invoice billing reports from customer invoices",
     "description": """
         Adds a Billing action on customer invoices.
