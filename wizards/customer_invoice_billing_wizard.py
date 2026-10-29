@@ -358,8 +358,8 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
     def _get_invoice_name(self, invoice):
         self.ensure_one()
         vendor_ref = self._get_invoice_vendor_ref(invoice)
-        chars = "".join(char for char in vendor_ref if char.isalpha() or char.isspace())
-        return chars
+        match = re.search(r"\s*-\s*\d{6}\s*$", vendor_ref)
+        return vendor_ref[:match.start()].rstrip() if match else vendor_ref
 
     def _get_invoice_cpi(self, invoice):
         self.ensure_one()
