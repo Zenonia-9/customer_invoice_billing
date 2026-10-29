@@ -363,7 +363,7 @@ class CustomerInvoiceBillingWizard(models.TransientModel):
         self.ensure_one()
         vendor_ref = self._get_invoice_vendor_ref(invoice)
         digits = "".join(char for char in vendor_ref if char.isdigit())
-        return digits[-6:] if digits else ""
+        return digits[-5:] if digits else ""
 
     def _get_remark_text(self):
         self.ensure_one()
